@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PlugIt — Your Campus Plug</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--surface:#111;--card:#181818;--card2:#202020;
+  --border:#252525;--border2:#303030;
+  --primary:#7c5cfc;--primary-dim:rgba(124,92,252,.13);--primary-glow:rgba(124,92,252,.28);
+  --accent:#f5a623;--accent-dim:rgba(245,166,35,.13);
+  --green:#2ecc71;--green-dim:rgba(46,204,113,.13);
+  --red:#e74c3c;--red-dim:rgba(231,76,60,.13);
+  --blue:#3498db;--blue-dim:rgba(52,152,219,.13);
+  --text:#f0ede8;--muted:#555;--muted2:#888;
+  --radius:14px;--radius-sm:9px;
+}
+/* Light theme overrides */
+[data-theme="light"]{
+  --bg:#f7f7f8;--surface:#ffffff;--card:#ffffff;--card2:#fafafa;
+  --border:#e6e6e6;--border2:#dddddd;
+  --primary:#7c5cfc;--primary-dim:rgba(124,92,252,.06);--primary-glow:rgba(124,92,252,.14);
+  --accent:#f5a623;--accent-dim:rgba(245,166,35,.06);
+  --green:#2ecc71;--green-dim:rgba(46,204,113,.06);
+  --red:#e74c3c;--red-dim:rgba(231,76,60,.06);
+  --blue:#3498db;--blue-dim:rgba(52,152,219,.06);
+  --text:#0b0b0b;--muted:#6b6b6b;--muted2:#8a8a8a;
+}
+
+/* SVG icon sizing */
+.icon svg,.svgic{width:1.6rem;height:1.6rem;display:inline-block;vertical-align:middle}
+.vendor-emoji svg{width:2rem;height:2rem}
+.vendor-hours svg{color:var(--muted2)}
+
+/* Responsive tweaks */
+@media (max-width:760px){
+  nav{padding:10px 12px}
+  .page{padding:18px 12px}
+  .nav-tabs{gap:4px}
+  .stat-strip{grid-template-columns:1fr}
+  .hero h1{font-size:clamp(1.8rem,8vw,2.4rem)}
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{cursor:pointer;font-family:'Nunito',sans-serif}
+input,select,textarea{font-family:'Nunito',sans-serif}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:var(--primary);letter-spacing:-1px;cursor:pointer}
+.logo span{color:var(--text)}
+.nav-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.nav-tab{background:none;border:1px solid var(--border);color:var(--muted2);font-size:.78rem;font-weight:500;padding:6px 13px;border-radius:7px;transition:all .2s;white-space:nowrap}
+.nav-tab:hover,.nav-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+.nav-user{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted2)}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.logout-btn{background:none;border:none;color:var(--muted);font-size:.75rem;padding:3px 8px;border-radius:5px}
+.logout-btn:hover{color:var(--red)}
+
+/* PAGES */
+.page{display:none;max-width:980px;margin:0 auto;padding:28px 20px;animation:fadeUp .3s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.page-title{font-family:'Nunito',sans-serif;font-size:1.6rem;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+.page-sub{color:var(--muted2);font-size:.88rem;margin-bottom:24px}
+
+/* FORMS */
+.form-wrap{max-width:480px;margin:0 auto}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px}
+.form-card h2{font-family:'Nunito',sans-serif;font-size:1.25rem;font-weight:900;margin-bottom:4px}
+.form-card .sub{color:var(--muted2);font-size:.83rem;margin-bottom:22px}
+.fg{margin-bottom:13px}
+.fg label{display:block;font-size:.74rem;font-weight:600;color:var(--muted2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-size:.88rem;padding:10px 12px;border-radius:var(--radius-sm);outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary)}
+.fg select{appearance:none}
+.fg textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;background:var(--primary);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:.88rem;padding:12px;border-radius:var(--radius-sm);border:none;transition:all .2s;letter-spacing:.2px}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.45;transform:none;cursor:not-allowed}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted2);font-size:.82rem;padding:8px 16px;border-radius:var(--radius-sm);transition:all .2s}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-accent{background:var(--accent);color:#000;font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;padding:9px 18px;border-radius:var(--radius-sm);border:none;transition:all .2s}
+.btn-accent:hover{opacity:.88}
+.btn-sm{font-size:.76rem;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted2);transition:all .15s}
+.btn-sm:hover{border-color:var(--primary);color:var(--primary)}
+.btn-green{background:var(--green);color:#000;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;padding:8px 16px;border-radius:7px;border:none;transition:all .2s}
+.btn-green:hover{opacity:.85}
+.form-footer{text-align:center;font-size:.82rem;color:var(--muted2);margin-top:14px}
+.form-footer a{color:var(--primary);font-weight:500;cursor:pointer}
+.err{background:var(--red-dim);border:1px solid var(--red);color:var(--red);font-size:.8rem;padding:8px 12px;border-radius:7px;margin-top:10px}
+.ok{background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-size:.8rem;padding:8px 12px;border-radius:7px;margin-top:10px}
+
+/* ROLE TABS */
+.role-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.role-tab{border:1px solid var(--border);background:none;padding:12px 8px;border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:all .2s;color:var(--muted2);font-size:.8rem;font-weight:500}
+.role-tab .icon{font-size:1.5rem;display:block;margin-bottom:5px}
+.role-tab.active{border-color:var(--primary);background:var(--primary-dim);color:var(--primary)}
+
+/* HERO */
+.hero{text-align:center;padding:56px 0 40px}
+.hero h1{font-family:'Nunito',sans-serif;font-size:clamp(2.4rem,6vw,4rem);font-weight:900;line-height:1.08;letter-spacing:-2.5px}
+.hero h1 em{color:var(--primary);font-style:normal}
+.hero p{color:var(--muted2);margin:14px auto 0;max-width:440px;font-size:.95rem;line-height:1.65}
+.hero-actions{display:flex;justify-content:center;gap:12px;margin-top:24px;flex-wrap:wrap}
+.hero-badge{background:var(--card);border:1px solid var(--border);padding:6px 16px;border-radius:50px;font-size:.78rem;color:var(--muted2)}
+.hero-badge em{color:var(--primary);font-style:normal}
+
+/* STAT STRIP */
+.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:32px 0}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.stat-card .num{font-family:'Nunito',sans-serif;font-size:1.8rem;font-weight:900;color:var(--primary)}
+.stat-card .lbl{font-size:.78rem;color:var(--muted2);margin-top:3px}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px}
+.step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px 18px}
+.step .num{font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:900;color:var(--primary);letter-spacing:2px;margin-bottom:10px}
+.step .icon{font-size:1.8rem;margin-bottom:8px}
+.step h4{font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:5px}
+.step p{font-size:.78rem;color:var(--muted2);line-height:1.5}
+
+/* SECTION LABEL */
+.sec-label{font-family:'Nunito',sans-serif;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+
+/* REQUEST CARDS */
+.request-grid{display:flex;flex-direction:column;gap:12px}
+.req-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:border-color .2s}
+.req-card:hover{border-color:var(--border2)}
+.req-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.req-student{font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem}
+.req-desc{font-size:.88rem;line-height:1.6;margin-bottom:10px;color:var(--text)}
+.req-meta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.req-meta-item{font-size:.75rem;color:var(--muted2);display:flex;align-items:center;gap:4px}
+.req-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.req-image{width:100%;max-height:160px;object-fit:cover;border-radius:8px;margin-bottom:10px;cursor:pointer}
+
+/* VENDOR GRID */
+.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.vendor-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:all .2s}
+.vendor-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.vendor-emoji{font-size:2rem;margin-bottom:8px}
+.vendor-name{font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem}
+.vendor-cat{font-size:.72rem;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.vendor-desc{font-size:.78rem;color:var(--muted2);margin-top:5px;line-height:1.4}
+.vendor-loc{font-size:.74rem;color:var(--muted);margin-top:7px}
+.vendor-hours{font-size:.72rem;color:var(--accent);margin-top:3px}
+
+/* PILL */
+.pill{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.pill-open{background:var(--green-dim);color:var(--green)}
+.pill-claimed{background:var(--blue-dim);color:var(--blue)}
+.pill-sourcing{background:var(--accent-dim);color:var(--accent)}
+.pill-delivered{background:var(--green-dim);color:var(--green)}
+.pill-cancelled{background:rgba(80,80,80,.2);color:var(--muted2)}
+.pill-disputed{background:var(--red-dim);color:var(--red)}
+.pill-urgent{background:var(--red-dim);color:var(--red)}
+.pill-normal{background:var(--border);color:var(--muted2)}
+
+/* NEGOTIATION */
+.neg-thread{margin-top:14px;padding:14px;background:var(--surface);border-radius:10px;border:1px solid var(--border)}
+.neg-thread h4{font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:10px;color:var(--muted2)}
+.neg-msg{margin-bottom:8px;padding:8px 10px;border-radius:7px;font-size:.82rem}
+.neg-msg.from-student{background:var(--primary-dim);border-left:3px solid var(--primary)}
+.neg-msg.from-shopper{background:var(--card2);border-left:3px solid var(--accent)}
+.neg-msg .who{font-weight:600;font-size:.72rem;margin-bottom:3px}
+.neg-msg .fee{font-size:.72rem;color:var(--accent);margin-top:3px}
+
+/* LEADERBOARD */
+.lb-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.lb-table th{text-align:left;padding:10px 14px;font-size:.7rem;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+.lb-table td{padding:12px 14px;border-bottom:1px solid var(--border)}
+.lb-table tr:last-child td{border:none}
+.lb-rank{font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem}
+.lb-rank.gold{color:#f5c518}
+.lb-rank.silver{color:#aaa}
+.lb-rank.bronze{color:#cd7f32}
+.stars{color:var(--accent);font-size:.82rem}
+
+/* SHOPPER MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;max-width:500px;width:100%;max-height:85vh;overflow-y:auto;animation:fadeUp .25s ease}
+.modal h3{font-family:'Nunito',sans-serif;font-weight:900;font-size:1.1rem;margin-bottom:16px}
+.modal-close{float:right;background:none;border:none;color:var(--muted2);font-size:1.2rem;cursor:pointer;margin-top:-4px}
+
+.empty{color:var(--muted);text-align:center;padding:48px 20px;font-size:.88rem}
+.loading{color:var(--muted);text-align:center;padding:28px;font-size:.85rem}
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="showPage('home')">Plug<span>It</span></div>
+  <div class="nav-tabs" id="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" onclick="showPage('vendors')">Vendors</button>
+    <button class="nav-tab" onclick="showPage('leaderboard')">Top Shoppers</button>
+    <button class="nav-tab" id="nav-requests" style="display:none" onclick="showPage('requests')">Requests</button>
+    <button class="nav-tab" id="nav-post" style="display:none" onclick="showPage('post')">+ New Request</button>
+  </div>
+  <button id="theme-toggle" class="btn-sm" aria-label="Toggle theme"><svg class="svgic" id="theme-icon" aria-hidden="true"><use href="icons.svg#icon-moon"></use></svg></button>
+  <div id="nav-auth-area"></div>
+</nav>
+
+<!-- ══ HOME ══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <h1>Your campus<br><em>plug.</em></h1>
+    <p>Need something sourced, bought or delivered on campus? Post a request and a personal shopper handles it.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" style="width:auto;padding:12px 28px" onclick="handlePostClick()">Post a Request</button>
+      <button class="btn-ghost" onclick="showPage('vendors')">Browse Vendors</button>
+    </div>
+  </div>
+  <div class="stat-strip" id="home-stats">
+    <div class="stat-card"><div class="num" id="stat-requests">0</div><div class="lbl">Requests Posted</div></div>
+    <div class="stat-card"><div class="num" id="stat-shoppers">0</div><div class="lbl">Active Shoppers</div></div>
+    <div class="stat-card"><div class="num" id="stat-delivered">0</div><div class="lbl">Deliveries Done</div></div>
+  </div>
+
+  <div class="sec-label">How it works</div>
+    <div class="steps">
+    <div class="step"><div class="num">STEP 01</div><div class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-note"></use></svg></div><h4>Post your request</h4><p>Describe what you need, set a budget and drop-off location. Takes 30 seconds.</p></div>
+    <div class="step"><div class="num">STEP 02</div><div class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-bag"></use></svg></div><h4>Shopper claims it</h4><p>An available personal shopper picks up your request and confirms they can source it.</p></div>
+    <div class="step"><div class="num">STEP 03</div><div class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-chat"></use></svg></div><h4>Negotiate if needed</h4><p>Chat within the request if the fee or item cost needs adjustment.</p></div>
+    <div class="step"><div class="num">STEP 04</div><div class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-box"></use></svg></div><h4>Get it delivered</h4><p>Your item arrives at your location. Rate the shopper and you're done.</p></div>
+  </div>
+
+  <hr class="divider"/>
+  <div class="sec-label">Fee breakdown</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;max-width:420px">
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--muted2)">Item cost</span><span>Set by student / negotiated</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--muted2)">Service fee (flat)</span><span style="color:var(--primary);font-weight:600">₦300</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem"><span style="color:var(--muted2)">Shopper earns</span><span style="color:var(--green)">₦200</span></div>
+    <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.85rem"><span style="color:var(--muted2)">PlugIt platform</span><span style="color:var(--accent)">₦100</span></div>
+  </div>
+</div>
+
+<!-- ══ VENDORS ══ -->
+<div class="page" id="page-vendors">
+  <div class="page-title">Where to Source</div>
+  <div class="page-sub">Verified vendors on and around campus. Shoppers use these to fulfil your requests.</div>
+  <div class="vendor-grid" id="vendor-grid"><div class="loading">Loading…</div></div>
+</div>
+
+<!-- ══ LEADERBOARD ══ -->
+  <div class="page" id="page-leaderboard">
+  <div class="page-title">Top Shoppers <svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-trophy"></use></svg></div>
+  <div class="page-sub">Ranked by deliveries completed and average rating.</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <table class="lb-table"><thead><tr><th>#</th><th>Shopper</th><th>Deliveries</th><th>Rating</th></tr></thead>
+    <tbody id="lb-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ══ REQUESTS (shopper/student dashboard) ══ -->
+<div class="page" id="page-requests">
+  <div class="page-title" id="req-page-title">Requests</div>
+  <div class="page-sub" id="req-page-sub"></div>
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="req-filter-bar"></div>
+  <div class="request-grid" id="request-list"><div class="loading">Loading…</div></div>
+</div>
+
+<!-- ══ POST REQUEST ══ -->
+<div class="page" id="page-post">
+  <div class="page-title">New Request</div>
+  <div class="page-sub">Describe what you need. A shopper will claim and handle it for you.</div>
+  <div class="form-wrap">
+    <div class="form-card">
+      <div class="fg"><label>What do you need? *</label>
+        <textarea id="post-desc" placeholder="e.g. 2 reams of A4 paper (any brand), a stapler and 2 packs of stapler pins. For a group project submission tomorrow."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Your Budget for Item(s) (₦)</label><input type="number" id="post-budget" placeholder="e.g. 4000" min="0"/></div>
+        <div class="fg"><label>Urgency</label>
+          <select id="post-urgency"><option value="normal">Normal</option><option value="urgent">Urgent</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>Drop-off Location *</label><input type="text" id="post-location" placeholder="e.g. Block C Room 212, Library entrance"/></div>
+      <div class="fg"><label>Suggested Vendor (optional)</label>
+        <select id="post-vendor"><option value="">No preference</option></select>
+      </div>
+      <div class="fg"><label>Extra Notes</label><input type="text" id="post-notes" placeholder="e.g. Please get the blue Biro not black"/></div>
+      <div class="fg"><label>Reference Image (optional)</label>
+        <div style="border:2px dashed var(--border);border-radius:9px;padding:18px;text-align:center;cursor:pointer" onclick="document.getElementById('post-image').click()">
+          <input type="file" id="post-image" accept="image/*" style="display:none" onchange="previewImage(this)"/>
+          <div style="font-size:1.6rem;margin-bottom:6px"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-attachment"></use></svg></div>
+          <div style="font-size:.78rem;color:var(--muted2)">Tap to attach a photo of the item</div>
+          <div id="post-img-preview" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div style="background:var(--primary-dim);border:1px solid rgba(124,92,252,.3);border-radius:9px;padding:12px;font-size:.8rem;margin-bottom:14px">
+        <strong style="color:var(--primary)">Service fee: ₦300</strong> — This covers the shopper's time and delivery. Negotiable after claiming.
+      </div>
+      <button class="btn-primary" onclick="postRequest()">Post Request →</button>
+      <div id="post-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div class="page" id="page-auth">
+  <div class="form-wrap"><div class="form-card"><div id="auth-inner"></div></div></div>
+</div>
+
+<!-- ══ REQUEST DETAIL MODAL ══ -->
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script>
+const API = "";
+let me = JSON.parse(localStorage.getItem("pi_user") || "null");
+let token = localStorage.getItem("pi_token") || "";
+let selectedRole = "student";
+let allRequests = [];
+let currentFilter = "";
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+const qs = id => document.getElementById(id);
+const fmt = n => n != null ? "₦" + Number(n).toLocaleString() : "—";
+const stars = n => n ? "[" + Math.round(n) + "/5]" : "No ratings yet";
+
+function pillClass(status) {
+  return `pill pill-${status}`;
+}
+
+function statusLabel(s) {
+  const m = { open:"Open", claimed:"Claimed", sourcing:"Sourcing", delivered:"Delivered", cancelled:"Cancelled", disputed:"Disputed" };
+  return m[s] || s;
+}
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 60) return "just now";
+  if (diff < 3600) return Math.floor(diff/60) + "m ago";
+  if (diff < 86400) return Math.floor(diff/3600) + "h ago";
+  return Math.floor(diff/86400) + "d ago";
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  qs("page-" + name).classList.add("active");
+  const tabMap = { home:0, vendors:1, leaderboard:2 };
+  if (tabMap[name] !== undefined) document.querySelectorAll(".nav-tab")[tabMap[name]].classList.add("active");
+  if (name === "vendors") loadVendors();
+  if (name === "leaderboard") loadLeaderboard();
+  if (name === "requests") loadRequests();
+  if (name === "home") loadStats();
+}
+
+// ── Auth UI ────────────────────────────────────────────────────────────────────
+function updateNav() {
+  const area = qs("nav-auth-area");
+  const reqBtn = qs("nav-requests");
+  const postBtn = qs("nav-post");
+  if (me) {
+    area.innerHTML = `<div class="nav-user"><span class="online-dot"></span><span>${me.name.split(" ")[0]} <span style="color:var(--primary);font-size:.7rem">(${me.role})</span></span><button class="logout-btn" onclick="logout()">out</button></div>`;
+    if (me.role === "student") { reqBtn.style.display=""; postBtn.style.display=""; reqBtn.textContent="My Orders"; }
+    else if (me.role === "shopper") { reqBtn.style.display=""; reqBtn.textContent="Available Jobs"; postBtn.style.display="none"; }
+    else { reqBtn.style.display="none"; postBtn.style.display="none"; }
+  } else {
+    area.innerHTML = `<button class="nav-tab" onclick="showAuth('login')">Login / Sign Up</button>`;
+    reqBtn.style.display="none"; postBtn.style.display="none";
+  }
+}
+
+function logout() {
+  me=null; token="";
+  localStorage.removeItem("pi_user"); localStorage.removeItem("pi_token");
+  updateNav(); showPage("home");
+}
+
+function showAuth(mode) {
+  const inner = qs("auth-inner");
+  if (mode === "login") {
+    inner.innerHTML = `
+      <h2>Welcome back</h2><div class="sub">Log in to your PlugIt account.</div>
+      <div class="fg"><label>Email</label><input type="email" id="l-email" placeholder="you@example.com"/></div>
+      <div class="fg"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••"/></div>
+      <button class="btn-primary" onclick="doLogin()">Log In</button>
+      <div id="auth-msg"></div>
+      <div class="form-footer">No account? <a onclick="showAuth('register')">Sign up</a></div>`;
+  } else {
+    inner.innerHTML = `
+      <h2>Create account</h2><div class="sub">Join PlugIt as a student, shopper, or vendor.</div>
+      <div class="role-tabs">
+        <div class="role-tab active" id="rt-student" onclick="selRole('student')"><span class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-student"></use></svg></span>Student</div>
+        <div class="role-tab" id="rt-shopper" onclick="selRole('shopper')"><span class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-shopper"></use></svg></span>Shopper</div>
+        <div class="role-tab" id="rt-vendor" onclick="selRole('vendor')"><span class="icon"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-store"></use></svg></span>Vendor</div>
+      </div>
+      <div class="fg"><label>Full Name *</label><input type="text" id="r-name" placeholder="Your full name"/></div>
+      <div class="form-row">
+        <div class="fg"><label>Email *</label><input type="email" id="r-email" placeholder="you@example.com"/></div>
+        <div class="fg"><label>Password *</label><input type="password" id="r-pass" placeholder="min 6 chars"/></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Phone</label><input type="tel" id="r-phone" placeholder="080xxxxxxxx"/></div>
+        <div class="fg"><label>Matric No.</label><input type="text" id="r-matric" placeholder="Optional"/></div>
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Create Account</button>
+      <div id="auth-msg"></div>
+      <div class="form-footer">Have an account? <a onclick="showAuth('login')">Log in</a></div>`;
+  }
+  showPage("auth");
+}
+
+// Theme handling (light / dark) and toggle persistence
+function applyTheme(t){
+  const iconUse = qs('theme-icon')?.querySelector('use');
+  if(t === 'light'){
+    document.documentElement.setAttribute('data-theme','light');
+    if(iconUse) iconUse.setAttribute('href','icons.svg#icon-sun');
+    localStorage.setItem('pi_theme','light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if(iconUse) iconUse.setAttribute('href','icons.svg#icon-moon');
+    localStorage.setItem('pi_theme','dark');
+  }
+}
+
+// initialize theme from preference or system
+(function(){
+  const saved = localStorage.getItem('pi_theme');
+  if(saved) applyTheme(saved);
+  else if(window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches) applyTheme('light');
+  else applyTheme('dark');
+  const tbtn = qs('theme-toggle');
+  if(tbtn) tbtn.addEventListener('click', ()=>{
+    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(cur);
+  });
+})();
+
+function selRole(r) {
+  selectedRole = r;
+  ["student","shopper","vendor"].forEach(x => qs("rt-"+x)?.classList.toggle("active", x===r));
+}
+
+async function doLogin() {
+  const email = qs("l-email").value.trim(), password = qs("l-pass").value;
+  const msg = qs("auth-msg");
+  try {
+    const res = await fetch(API+"/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+    const d = await res.json();
+    if (!res.ok) { msg.innerHTML=`<div class="err">${d.error}</div>`; return; }
+    saveAuth(d);
+  } catch { msg.innerHTML=`<div class="err">Network error.</div>`; }
+}
+
+async function doRegister() {
+  const name=qs("r-name").value.trim(), email=qs("r-email").value.trim();
+  const password=qs("r-pass").value, phone=qs("r-phone")?.value.trim(), matric=qs("r-matric")?.value.trim();
+  const msg=qs("auth-msg");
+  if (!name||!email||!password) { msg.innerHTML=`<div class="err">Name, email and password required.</div>`; return; }
+  try {
+    const res = await fetch(API+"/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,email,password,role:selectedRole,phone,matric})});
+    const d = await res.json();
+    if (!res.ok) { msg.innerHTML=`<div class="err">${d.error}</div>`; return; }
+    saveAuth(d);
+  } catch { msg.innerHTML=`<div class="err">Network error.</div>`; }
+}
+
+function saveAuth(d) {
+  me=d.user; token=d.token;
+  localStorage.setItem("pi_user", JSON.stringify(me));
+  localStorage.setItem("pi_token", token);
+  updateNav();
+  if (me.role==="shopper") showPage("requests");
+  else showPage("home");
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const [lb] = await Promise.all([fetch(API+"/api/shoppers/leaderboard").then(r=>r.json())]);
+    qs("stat-shoppers").textContent = lb.length;
+    qs("stat-delivered").textContent = lb.reduce((s,x)=>s+x.completedJobs,0);
+  } catch {}
+}
+
+// ── Vendors ────────────────────────────────────────────────────────────────────
+async function loadVendors() {
+  const grid = qs("vendor-grid");
+  try {
+    const vendors = await fetch(API+"/api/vendors").then(r=>r.json());
+    if (!vendors.length) { grid.innerHTML=`<div class="empty">No vendors listed yet.</div>`; return; }
+    grid.innerHTML = vendors.map(v=>`
+      <div class="vendor-card">
+        <div class="vendor-emoji"><svg class="svgic" aria-hidden="true"><use href="icons.svg#${v.icon}"></use></svg></div>
+        <div class="vendor-name">${v.name}</div>
+        <div class="vendor-cat">${v.category}</div>
+        <div class="vendor-desc">${v.description}</div>
+        <div class="vendor-loc"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-location"></use></svg> ${v.location}</div>
+        <div class="vendor-hours"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-clock"></use></svg> ${v.openHours}</div>
+        ${v.contact?`<div style="font-size:.72rem;color:var(--muted2);margin-top:4px"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-phone"></use></svg> ${v.contact}</div>`:""}
+      </div>`).join("");
+  } catch { grid.innerHTML=`<div class="empty">Could not load vendors.</div>`; }
+}
+
+// ── Leaderboard ────────────────────────────────────────────────────────────────
+async function loadLeaderboard() {
+  const tbody = qs("lb-body");
+  try {
+    const list = await fetch(API+"/api/shoppers/leaderboard").then(r=>r.json());
+    if (!list.length) { tbody.innerHTML=`<tr><td colspan="4" class="empty">No shoppers yet.</td></tr>`; return; }
+    const rankClass = i => i===0?"gold":i===1?"silver":i===2?"bronze":"";
+    tbody.innerHTML = list.map((s,i)=>`
+      <tr>
+        <td><span class="lb-rank ${rankClass(i)}">${i===0?`<svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-trophy"></use></svg>${i+1}`:i+1}</span></td>
+        <td><strong>${s.name}</strong></td>
+        <td><strong style="color:var(--primary)">${s.completedJobs}</strong></td>
+        <td><span class="stars">${s.avgRating?stars(s.avgRating):"—"}</span> ${s.avgRating?`<span style="font-size:.75rem;color:var(--muted2)">${s.avgRating} (${s.ratingCount})</span>`:""}</td>
+      </tr>`).join("");
+  } catch { tbody.innerHTML=`<tr><td colspan="4" class="empty">Could not load.</td></tr>`; }
+}
+
+// ── Requests ───────────────────────────────────────────────────────────────────
+async function loadRequests() {
+  if (!me) { showAuth("login"); return; }
+  const list = qs("request-list");
+  const title = qs("req-page-title");
+  const sub = qs("req-page-sub");
+
+  if (me.role==="student") { title.textContent="My Requests"; sub.textContent="Track your shopping requests here."; }
+  else if (me.role==="shopper") { title.textContent="Available Jobs"; sub.textContent="Claim a request and start earning."; }
+
+  list.innerHTML = `<div class="loading">Loading…</div>`;
+  try {
+    const res = await fetch(API+"/api/requests", {headers:{Authorization:"Bearer "+token}});
+    allRequests = await res.json();
+    qs("stat-requests").textContent = allRequests.length;
+    renderFilterBar();
+    renderRequests(allRequests);
+  } catch { list.innerHTML=`<div class="empty">Could not load requests.</div>`; }
+}
+
+function renderFilterBar() {
+  const bar = qs("req-filter-bar");
+  const statuses = me?.role==="shopper"
+    ? ["","open","claimed","sourcing","delivered"]
+    : ["","open","claimed","sourcing","delivered","cancelled"];
+  const labels = { "":"All","open":"Open","claimed":"Claimed","sourcing":"Sourcing","delivered":"Delivered","cancelled":"Cancelled" };
+  bar.innerHTML = statuses.map(s=>`<button class="btn-sm ${currentFilter===s?"active":""}" onclick="filterRequests('${s}')">${labels[s]}</button>`).join("");
+}
+
+function filterRequests(status) {
+  currentFilter = status;
+  renderFilterBar();
+  const filtered = status ? allRequests.filter(r=>r.status===status) : allRequests;
+  renderRequests(filtered);
+}
+
+function renderRequests(list) {
+  const el = qs("request-list");
+  if (!list.length) { el.innerHTML=`<div class="empty">No requests here.</div>`; return; }
+  el.innerHTML = list.map(r => `
+    <div class="req-card" onclick="openModal('${r.id}')">
+      <div class="req-card-top">
+        <span class="req-student">${r.studentName}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${r.urgency==="urgent"?`<span class="pill pill-urgent"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-bolt"></use></svg> Urgent</span>`:""}
+          <span class="${pillClass(r.status)}">${statusLabel(r.status)}</span>
+        </div>
+      </div>
+      ${r.imagePath?`<img class="req-image" src="${r.imagePath}" alt="Item" onclick="event.stopPropagation();window.open('${r.imagePath}')"/>`:""}
+      <div class="req-desc">${r.description}</div>
+      <div class="req-meta">
+        ${r.itemBudget?`<span class="req-meta-item">Budget: ${fmt(r.itemBudget)}</span>`:""}
+        <span class="req-meta-item">Fee: ${fmt(r.finalServiceFee||r.serviceFee)}</span>
+        <span class="req-meta-item"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-location"></use></svg> ${r.deliveryLocation}</span>
+        <span class="req-meta-item"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-clock"></use></svg> ${timeAgo(r.createdAt)}</span>
+        ${r.shopperId?`<span class="req-meta-item"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-shopper"></use></svg> ${r.shopperName}</span>`:""}
+      </div>
+      <div class="req-actions" onclick="event.stopPropagation()">
+        ${me?.role==="shopper" && r.status==="open" ? `<button class="btn-green" onclick="claimRequest('${r.id}')">Claim Job →</button>` : ""}
+        <button class="btn-ghost" onclick="openModal('${r.id}')">View Details</button>
+      </div>
+    </div>`).join("");
+}
+
+async function claimRequest(id) {
+  if (!me || me.role!=="shopper") { showAuth("login"); return; }
+  try {
+    const res = await fetch(API+"/api/requests/"+id+"/claim",{method:"PATCH",headers:{Authorization:"Bearer "+token}});
+    const d = await res.json();
+    if (!res.ok) { alert(d.error); return; }
+    alert("Request claimed! Go source the item and deliver.");
+    loadRequests();
+  } catch { alert("Network error."); }
+}
+
+// ── Post Request ───────────────────────────────────────────────────────────────
+function handlePostClick() {
+  if (!me) { showAuth("login"); return; }
+  if (me.role!=="student") { alert("Only students can post requests."); return; }
+  loadVendorSelect();
+  showPage("post");
+}
+
+async function loadVendorSelect() {
+  try {
+    const vendors = await fetch(API+"/api/vendors").then(r=>r.json());
+    const sel = qs("post-vendor");
+    sel.innerHTML = `<option value="">No preference</option>` + vendors.map(v=>`<option value="${v.id}">${v.name}</option>`).join("");
+  } catch {}
+}
+
+function previewImage(input) {
+  const prev = qs("post-img-preview");
+  if (input.files[0]) {
+    const url = URL.createObjectURL(input.files[0]);
+    prev.innerHTML = `<img src="${url}" style="max-height:120px;border-radius:8px;margin-top:8px"/>`;
+  }
+}
+
+async function postRequest() {
+  if (!me) { showAuth("login"); return; }
+  const desc = qs("post-desc").value.trim();
+  const location = qs("post-location").value.trim();
+  const msg = qs("post-msg");
+  if (!desc) { msg.innerHTML=`<div class="err">Please describe what you need.</div>`; return; }
+  if (!location) { msg.innerHTML=`<div class="err">Please enter your drop-off location.</div>`; return; }
+
+  const fd = new FormData();
+  fd.append("description", desc);
+  fd.append("deliveryLocation", location);
+  fd.append("itemBudget", qs("post-budget").value || "");
+  fd.append("urgency", qs("post-urgency").value);
+  fd.append("suggestedVendorId", qs("post-vendor").value);
+  fd.append("notes", qs("post-notes").value.trim());
+  const imgFile = qs("post-image").files[0];
+  if (imgFile) fd.append("image", imgFile);
+
+  const btn = document.querySelector("#page-post .btn-primary");
+  btn.disabled=true; btn.textContent="Posting…";
+  try {
+    const res = await fetch(API+"/api/requests",{method:"POST",headers:{Authorization:"Bearer "+token},body:fd});
+    const d = await res.json();
+    if (!res.ok) { msg.innerHTML=`<div class="err">${d.error}</div>`; return; }
+    msg.innerHTML=`<div class="ok">Request posted! Shoppers can now see and claim it.</div>`;
+    ["post-desc","post-location","post-budget","post-notes"].forEach(id=>{ if(qs(id)) qs(id).value=""; });
+    qs("post-img-preview").innerHTML="";
+    setTimeout(()=>{ showPage("requests"); loadRequests(); }, 1500);
+  } catch { msg.innerHTML=`<div class="err">Network error.</div>`; }
+  finally { btn.disabled=false; btn.textContent="Post Request →"; }
+}
+
+// ── Modal (Request Detail) ─────────────────────────────────────────────────────
+async function openModal(id) {
+  const overlay = qs("modal-overlay");
+  const content = qs("modal-content");
+  content.innerHTML=`<div class="loading">Loading…</div>`;
+  overlay.style.display="flex";
+  try {
+    const res = await fetch(API+"/api/requests/"+id,{headers:{Authorization:"Bearer "+token}});
+    const r = await res.json();
+    if (!res.ok) { content.innerHTML=`<div class="err">${r.error}</div>`; return; }
+    renderModal(r);
+  } catch { content.innerHTML=`<div class="err">Could not load.</div>`; }
+}
+
+function renderModal(r) {
+  const content = qs("modal-content");
+  const isMyShopper = me?.id === r.shopperId;
+  const isMyRequest = me?.id === r.studentId;
+
+  // Negotiation thread
+  const negHtml = r.negotiation?.length ? `
+    <div class="neg-thread">
+      <h4>Negotiation Thread</h4>
+      ${r.negotiation.map(n=>`
+        <div class="neg-msg from-${n.from}">
+          <div class="who">${n.name} (${n.from})</div>
+          <div>${n.message}</div>
+          ${n.proposedFee?`<div class="fee">Proposed fee: ${fmt(n.proposedFee)}</div>`:""}
+        </div>`).join("")}
+    </div>` : "";
+
+  // Rating
+  const ratingHtml = r.status==="delivered" && isMyRequest && !r.rating ? `
+    <div style="margin-top:14px;padding:14px;background:var(--card2);border-radius:10px">
+      <div style="font-size:.82rem;font-weight:600;margin-bottom:8px">Rate this shopper</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        ${[1,2,3,4,5].map(n=>`<button class="btn-sm" onclick="submitRating('${r.id}',${n})">${n}</button>`).join("")}
+      </div>
+    </div>` : r.rating ? `<div style="margin-top:10px;font-size:.82rem;color:var(--accent)">You rated this: [${r.rating.score}/5] ${r.rating.comment?"— "+r.rating.comment:""}</div>` : "";
+
+  content.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h3>${r.studentName}'s Request</h3>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <span class="${pillClass(r.status)}">${statusLabel(r.status)}</span>
+      ${r.urgency==="urgent"?`<span class="pill pill-urgent"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-bolt"></use></svg> Urgent</span>`:""}
+    </div>
+    ${r.imagePath?`<img src="${r.imagePath}" style="width:100%;max-height:180px;object-fit:cover;border-radius:9px;margin-bottom:14px"/>`:""}
+    <div style="font-size:.9rem;line-height:1.65;margin-bottom:14px">${r.description}</div>
+    dummy
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;margin-bottom:14px">
+      <div style="background:var(--surface);padding:10px;border-radius:8px"><div style="color:var(--muted2)">Budget</div><strong>${fmt(r.itemBudget)||"Not set"}</strong></div>
+      <div style="background:var(--surface);padding:10px;border-radius:8px"><div style="color:var(--muted2)">Service Fee</div><strong style="color:var(--primary)">${fmt(r.finalServiceFee||r.serviceFee)}</strong></div>
+      <div style="background:var(--surface);padding:10px;border-radius:8px"><div style="color:var(--muted2)">Drop-off</div><strong>${r.deliveryLocation}</strong></div>
+      <div style="background:var(--surface);padding:10px;border-radius:8px"><div style="color:var(--muted2)">Shopper</div><strong>${r.shopperName||"Unassigned"}</strong></div>
+    </div>
+    ${negHtml}
+    ${r.pendingFeeProposal && isMyRequest ? `
+      <div style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:9px;padding:12px;margin-top:12px;font-size:.83rem">
+        Shopper proposed a new fee of <strong style="color:var(--accent)">${fmt(r.pendingFeeProposal)}</strong>
+        <button class="btn-accent" style="margin-left:10px;padding:5px 12px;font-size:.78rem" onclick="acceptFee('${r.id}')">Accept</button>
+      </div>` : ""}
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      ${isMyShopper && r.status==="claimed" ? `<button class="btn-green" onclick="updateStatus('${r.id}','sourcing')">Mark: Sourcing</button>` : ""}
+      ${isMyShopper && r.status==="sourcing" ? `<button class="btn-green" onclick="updateStatus('${r.id}','delivered')">Mark: Delivered</button>` : ""}
+      ${isMyRequest && ["claimed","sourcing"].includes(r.status) ? `<button class="btn-ghost" onclick="updateStatus('${r.id}','cancelled')">Cancel</button>` : ""}
+      ${(isMyShopper || isMyRequest) && ["claimed","sourcing"].includes(r.status) ? `<button class="btn-accent" onclick="showNegForm('${r.id}')"><svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-chat"></use></svg> Negotiate</button>` : ""}
+    </div>
+    <div id="neg-form-area"></div>
+    ${ratingHtml}`;
+}
+
+function showNegForm(id) {
+  qs("neg-form-area").innerHTML = `
+    <div style="margin-top:12px;padding:12px;background:var(--surface);border-radius:9px">
+      <div class="fg" style="margin-bottom:8px"><label>Message</label><textarea id="neg-msg" rows="2" placeholder="Type your message…"></textarea></div>
+      <div class="fg" style="margin-bottom:10px"><label>Propose New Fee (optional)</label><input type="number" id="neg-fee" placeholder="e.g. 400"/></div>
+      <button class="btn-primary" style="padding:9px" onclick="sendNeg('${id}')">Send</button>
+    </div>`;
+}
+
+async function sendNeg(id) {
+  const message = qs("neg-msg").value.trim();
+  const proposedFee = qs("neg-fee").value;
+  if (!message) { alert("Message required."); return; }
+  try {
+    const res = await fetch(API+"/api/requests/"+id+"/negotiate",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({message,proposedFee:proposedFee||null})});
+    if (!res.ok) { const d=await res.json(); alert(d.error); return; }
+    openModal(id);
+  } catch { alert("Error."); }
+}
+
+async function acceptFee(id) {
+  await fetch(API+"/api/requests/"+id+"/accept-fee",{method:"PATCH",headers:{Authorization:"Bearer "+token}});
+  openModal(id);
+}
+
+async function updateStatus(id, status) {
+  try {
+    const res = await fetch(API+"/api/requests/"+id+"/status",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({status})});
+    if (!res.ok) { const d=await res.json(); alert(d.error); return; }
+    closeModal(); loadRequests();
+  } catch { alert("Error."); }
+}
+
+async function submitRating(id, score) {
+  const comment = prompt("Leave a comment (optional):");
+  try {
+    await fetch(API+"/api/requests/"+id+"/rate",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({score,comment:comment||""})});
+    openModal(id); loadLeaderboard();
+  } catch { alert("Error."); }
+}
+
+function closeModal(event) {
+  if (!event || event.target===qs("modal-overlay")) {
+    qs("modal-overlay").style.display="none";
+    loadRequests();
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+updateNav();
+loadStats();
+</script>
+</body>
+</html>

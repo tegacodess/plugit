@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: plugit
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: PORT
+        value: "${PORT}"
+      - key: JWT_SECRET
+        value: "REPLACE_WITH_YOUR_SECRET"
+# Notes:
+# - Replace the above JWT_SECRET value in Render dashboard with a secure secret after connecting the repo.
+# - If you want Render to automatically discover the repo, add this file to the repo root and push to GitHub.
+# - Render will use the `start` script from package.json (npm start -> node server.js). Ensure your repository branch is 'main'.
