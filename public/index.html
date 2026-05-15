@@ -37,9 +37,7 @@
 
 /* Responsive tweaks */
 @media (max-width:760px){
-  nav{padding:10px 12px}
   .page{padding:18px 12px}
-  .nav-tabs{gap:4px}
   .stat-strip{grid-template-columns:1fr}
   .hero h1{font-size:clamp(1.8rem,8vw,2.4rem)}
 }
@@ -49,15 +47,35 @@ input,select,textarea{font-family:'Nunito',sans-serif}
 
 /* NAV */
 nav{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
 .logo{font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:var(--primary);letter-spacing:-1px;cursor:pointer}
 .logo span{color:var(--text)}
+.nav-toggle{display:none;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text)}
+.nav-toggle svg{width:1.1rem;height:1.1rem}
+.nav-panel{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:1}
 .nav-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.nav-tools{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .nav-tab{background:none;border:1px solid var(--border);color:var(--muted2);font-size:.78rem;font-weight:500;padding:6px 13px;border-radius:7px;transition:all .2s;white-space:nowrap}
 .nav-tab:hover,.nav-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
 .nav-user{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted2)}
 .online-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
 .logout-btn{background:none;border:none;color:var(--muted);font-size:.75rem;padding:3px 8px;border-radius:5px}
 .logout-btn:hover{color:var(--red)}
+
+@media (max-width:760px){
+  nav{padding:10px 12px;align-items:flex-start;gap:10px;flex-wrap:wrap}
+  .nav-brand{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .nav-toggle{display:inline-flex}
+  .nav-panel{display:none;width:100%;flex-direction:column;align-items:stretch;gap:10px;padding-top:8px;border-top:1px solid var(--border)}
+  .nav-panel.open{display:flex}
+  .nav-tabs{width:100%;flex-direction:column;gap:8px;flex-wrap:nowrap}
+  .nav-tab{width:100%;text-align:left;padding:11px 14px}
+  .nav-tools{width:100%;display:block}
+  #theme-toggle{display:none}
+  #nav-auth-area{width:100%}
+  #nav-auth-area .nav-tab,.nav-auth-area-btn{width:100%}
+  .nav-user{width:100%;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:8px}
+}
 
 /* PAGES */
 .page{display:none;max-width:980px;margin:0 auto;padding:28px 20px;animation:fadeUp .3s ease}
@@ -194,16 +212,25 @@ nav{position:sticky;top:0;z-index:300;display:flex;align-items:center;justify-co
 <body>
 
 <nav>
-  <div class="logo" onclick="showPage('home')">Plug<span>It</span></div>
-  <div class="nav-tabs" id="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('home')">Home</button>
-    <button class="nav-tab" onclick="showPage('vendors')">Vendors</button>
-    <button class="nav-tab" onclick="showPage('leaderboard')">Top Shoppers</button>
-    <button class="nav-tab" id="nav-requests" style="display:none" onclick="showPage('requests')">Requests</button>
-    <button class="nav-tab" id="nav-post" style="display:none" onclick="showPage('post')">+ New Request</button>
+  <div class="nav-brand">
+    <div class="logo" onclick="showPage('home')">Plug<span>It</span></div>
+    <button id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-panel" onclick="toggleNavMenu()">
+      <svg class="svgic" aria-hidden="true"><use href="icons.svg#icon-menu"></use></svg>
+    </button>
   </div>
-  <button id="theme-toggle" class="btn-sm" aria-label="Toggle theme"><svg class="svgic" id="theme-icon" aria-hidden="true"><use href="icons.svg#icon-moon"></use></svg></button>
-  <div id="nav-auth-area"></div>
+  <div class="nav-panel" id="nav-panel">
+    <div class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('home')">Home</button>
+      <button class="nav-tab" onclick="showPage('vendors')">Vendors</button>
+      <button class="nav-tab" onclick="showPage('leaderboard')">Top Shoppers</button>
+      <button class="nav-tab" id="nav-requests" style="display:none" onclick="showPage('requests')">Requests</button>
+      <button class="nav-tab" id="nav-post" style="display:none" onclick="showPage('post')">+ New Request</button>
+    </div>
+    <div class="nav-tools">
+      <button id="theme-toggle" class="btn-sm" aria-label="Toggle theme"><svg class="svgic" id="theme-icon" aria-hidden="true"><use href="icons.svg#icon-moon"></use></svg></button>
+      <div id="nav-auth-area"></div>
+    </div>
+  </div>
 </nav>
 
 <!-- ══ HOME ══ -->
@@ -353,6 +380,25 @@ function showPage(name) {
   if (name === "leaderboard") loadLeaderboard();
   if (name === "requests") loadRequests();
   if (name === "home") loadStats();
+  closeNavMenu();
+}
+
+function setNavMenu(open) {
+  const panel = qs("nav-panel");
+  const toggle = qs("nav-toggle");
+  if (!panel || !toggle) return;
+  const expanded = !!open;
+  panel.classList.toggle("open", expanded);
+  toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+}
+
+function toggleNavMenu() {
+  const panel = qs("nav-panel");
+  setNavMenu(!panel?.classList.contains("open"));
+}
+
+function closeNavMenu() {
+  setNavMenu(false);
 }
 
 // ── Auth UI ────────────────────────────────────────────────────────────────────
@@ -366,7 +412,7 @@ function updateNav() {
     else if (me.role === "shopper") { reqBtn.style.display=""; reqBtn.textContent="Available Jobs"; postBtn.style.display="none"; }
     else { reqBtn.style.display="none"; postBtn.style.display="none"; }
   } else {
-    area.innerHTML = `<button class="nav-tab" onclick="showAuth('login')">Login / Sign Up</button>`;
+    area.innerHTML = `<button class="nav-tab nav-auth-area-btn" onclick="showAuth('login')">Login / Sign Up</button>`;
     reqBtn.style.display="none"; postBtn.style.display="none";
   }
 }
@@ -775,6 +821,7 @@ function closeModal(event) {
 // ── Init ───────────────────────────────────────────────────────────────────────
 updateNav();
 loadStats();
+closeNavMenu();
 </script>
 </body>
 </html>

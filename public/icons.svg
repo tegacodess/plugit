@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Simple SVG sprite used as icons replacement for emojis -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-menu" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" />
+  </symbol>
   <symbol id="icon-note" viewBox="0 0 24 24" fill="currentColor">
     <path d="M4 4h12l4 4v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zM14 5.5V9h3.5L14 5.5zM7 8h10v2H7V8zm0 4h10v2H7v-2z" />
   </symbol>
